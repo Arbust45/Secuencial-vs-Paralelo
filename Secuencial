@@ -1,0 +1,26 @@
+import random
+import faker
+import mysql.connector
+
+fake = faker.Faker()
+
+conn = mysql.connector.connect(
+    host='localhost',      
+    user='root',           
+    password='a',           
+    database='lote'        
+)
+cursor = conn.cursor()
+
+def datos():
+    for _ in range(50000):
+        nombre = fake.name()
+        correo = fake.email()
+        query = "INSERT INTO lote (correo, nombre) VALUES (%s, %s)"
+        cursor.execute(query, (correo, nombre))
+        conn.commit() 
+
+datos()
+
+cursor.close()
+conn.close()
