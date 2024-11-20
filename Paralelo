@@ -1,0 +1,31 @@
+import random
+import faker
+import mysql.connector
+from concurrent.futures import ThreadPoolExecutor
+
+fake = faker.Faker()
+
+conn = mysql.connector.connect(
+    host='localhost',      
+    user='root',           
+    password='a',           
+    database='lote'        
+)
+cursor = conn.cursor()
+
+def datos():
+    for _ in range(10000):
+        nombre = fake.name()
+        correo = fake.email()
+        query = "INSERT INTO lote (correo, nombre) VALUES (%s, %s)"
+        cursor.execute(query, (correo, nombre))
+        conn.commit() 
+
+def insertar_en_paralelo(num_hilos):
+    with ThreadPoolExecutor(max_workers=num_hilos) as executor:
+        for _ in range(num_hilos):
+            executor.submit(datos())
+
+insertar_en_paralelo(5)
+cursor.close()
+conn.close()
